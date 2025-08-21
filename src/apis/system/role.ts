@@ -65,3 +65,8 @@ export function listRoleUserId(id: string) {
 export function listRoleDict(query?: { name: string, status: number }) {
   return http.get<LabelValueState[]>(`${BASE_URL}/dict`, query)
 }
+
+/** @desc 导出角色 */
+export function exportRole(query: T.RoleQuery) {
+  return http.download(`${BASE_URL}/export`, query)
+}

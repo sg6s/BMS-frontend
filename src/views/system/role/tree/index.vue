@@ -1,12 +1,19 @@
 <template>
   <div class="container">
-    <div class="search">
-      <a-input v-model="searchKey" placeholder="搜索名称/编码" allow-clear>
-        <template #prefix><icon-search /></template>
-      </a-input>
-      <a-button v-permission="['system:role:create']" type="primary" @click="onAdd">
-        <template #icon><icon-plus /></template>
-      </a-button>
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <a-input v-model="searchKey" placeholder="搜索名称/编码" allow-clear style="width: 100%">
+          <template #prefix><icon-search /></template>
+        </a-input>
+      </div>
+      <div class="search-buttons">
+        <a-button v-permission="['system:role:create']" type="primary" @click="onAdd">
+          <template #icon><icon-plus /></template>
+        </a-button>
+        <a-button v-permission="['system:role:export']" @click="onExport">
+          <template #icon><icon-download /></template>
+        </a-button>
+      </div>
     </div>
     <div class="tree-wrapper">
       <div class="tree">
@@ -46,11 +53,12 @@
 
 <script setup lang="ts">
 import { Message, Modal } from '@arco-design/web-vue'
+import { useDownload } from '@/hooks'
 import type { TreeNodeData } from '@arco-design/web-vue'
 import { mapTree } from 'xe-utils'
 import AddDrawer from '../AddDrawer.vue'
 import RightMenu from './RightMenu.vue'
-import { type RoleResp, deleteRole, listRole } from '@/apis/system/role'
+import { type RoleResp, deleteRole, listRole, exportRole } from '@/apis/system/role'
 import has from '@/utils/has'
 
 const emit = defineEmits<{
@@ -119,6 +127,16 @@ const onAdd = () => {
 }
 
 // 点击菜单项
+// 导出
+const onExport = () => {
+  // 创建符合RoleQuery类型的查询对象
+  const exportQuery = {
+    sort: ['sort,asc'],
+    description: ''
+  }
+  useDownload(() => exportRole(exportQuery))
+}
+
 const onMenuItemClick = (mode: string, node: RoleResp) => {
   if (mode === 'update') {
     AddDrawerRef.value?.onUpdate(node.id)
@@ -213,13 +231,26 @@ onMounted(() => {
   box-sizing: border-box;
   height: 100%;
 
-  .search {
+  .search-container {
     display: flex;
-    justify-content: start;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 10px;
-    .arco-btn {
-      margin-left: 8px;
-      padding: 0 15px;
+    width: 100%;
+
+    .search-input-wrapper {
+      flex: 1;
+      min-width: 0;
+      margin-right: 10px;
+    }
+
+    .search-buttons {
+      display: flex;
+      gap: 8px;
+
+      .arco-btn {
+        padding: 0 15px;
+      }
     }
   }
 
